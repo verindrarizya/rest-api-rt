@@ -1,1 +1,1 @@
-# Covid-RT
+# COVID RT API
