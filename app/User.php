@@ -8,6 +8,8 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class User extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
@@ -18,7 +20,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'name', 'email',
+        'username', 'password', 'nama', 'nik', 'kecamatan', 'kelurahan', 'rw', 'rt', 'rt',
+        'status_user'
     ];
 
     /**
@@ -29,4 +32,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = [
         'password',
     ];
+
+    // Relations
+
+    public function warga () {
+        return $this->hasOne('App\Warga');
+    }
 }

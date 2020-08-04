@@ -16,7 +16,7 @@ class CreateWargaTable extends Migration
         Schema::create('warga', function (Blueprint $table) {
             $table->increments('id');
             $table->string('no_kk');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('user_id')->nullable();
             $table->enum('jenis_kelamin', ['L', 'P']);
             $table->date('tanggal_lahir');
             $table->string('alamat');
