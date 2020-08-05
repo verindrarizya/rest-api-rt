@@ -11,6 +11,12 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+// $router->get('/', function () use ($router) {
+//     return $router->app->version();
+// });
+
+$router->post('/register-rt', 'AuthController@registerRT');
+
+$router->group(['middleware' => 'auth'], function () use ($router) {
+
 });
