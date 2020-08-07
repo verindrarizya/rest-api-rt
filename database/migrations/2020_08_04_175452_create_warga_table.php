@@ -19,7 +19,7 @@ class CreateWargaTable extends Migration
             $table->unsignedInteger('user_id')->nullable();
             $table->enum('jenis_kelamin', ['L', 'P']);
             $table->date('tanggal_lahir');
-            $table->string('alamat');
+            $table->text('alamat');
             $table->string('no_hp');
 
             // Penyakit

@@ -17,7 +17,7 @@ class WargaResource extends JsonResource
         return [
             'no_kk' => $this->no_kk,
             'user_id' => $this->user_id,
-            'jenis_kelamin' => ($this->status_user == 'L' ? 'Laki - laki' : 'Perempuan'),
+            'jenis_kelamin' => ($this->jenis_kelamin == 'L' ? 'Laki - laki' : 'Perempuan'),
             'tanggal_lahir' => $this->tanggal_lahir,
             'alamat' => $this->alamat,
             'no_hp' => $this->no_hp,

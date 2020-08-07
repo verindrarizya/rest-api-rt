@@ -15,8 +15,12 @@
 //     return $router->app->version();
 // });
 
-$router->post('/register-rt', 'AuthController@registerRT');
+$router->post('register-rt', 'AuthController@registerRT');
+$router->post('register-warga', 'AuthController@registerWarga');
+$router->post('login' , 'AuthController@login');
+
+$router->get('token', 'AuthController@getToken');
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
-
+    $router->get('logout', 'AuthController@logout');
 });

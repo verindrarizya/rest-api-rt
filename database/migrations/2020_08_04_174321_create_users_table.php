@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('kelurahan');
             $table->string('rw');
             $table->string('rt');
-            $table->enum('status_user', [0, 1]);
+            $table->enum('status_user', [1, 2]);
 
             $table->string('token')->nullable();
             $table->rememberToken();
