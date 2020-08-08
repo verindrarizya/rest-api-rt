@@ -23,4 +23,18 @@ $router->get('token', 'AuthController@getToken');
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('logout', 'AuthController@logout');
+    $router->post('change-password', 'AuthController@changePassword');
+
+    // RT
+    $router->group(['prefix' => 'rt'], function () use ($router) {
+        $router->get('show-profile', 'RtController@show');
+        $router->put('update-profile', 'RtController@updateProfile');
+    });
+
+    // Warga
+    $router->group(['prefix' => 'warga'], function () use ($router) {
+        $router->get('show-profile', 'WargaController@show');
+        $router->put('update-profile', 'WargaController@updateProfile');
+        $router->post('kesejahteraan', 'WargaController@kondisiKesejahteraan');
+    });
 });

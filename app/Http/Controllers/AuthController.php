@@ -145,6 +145,33 @@ class AuthController extends Controller
         return response()->json($response);
     }
 
+    public function changePassword (Request $request) {
+        $this->validate($request, [
+            'old_password' => 'required',
+            'new_password' => 'required', 
+            'new_password_confirmation' => 'required|same:new_password'
+        ]);
+
+        $user = Auth::user();
+        
+        $old_password = $request->input('old_password');
+
+        if (Hash::check($old_password, $user->password)) {
+            $user->password = Hash::make($request->input('new_password'));
+            $user->save();
+
+            $response = [
+                'Message' => 'Password Berhasil Diganti'
+            ];
+        } else {
+            $response = [
+                'Message' => 'Password Gagal Diganti'
+            ];
+        }
+        
+        return response()->json($response);
+    }
+
     public function getToken () {
         return rand(100, 500);
     }

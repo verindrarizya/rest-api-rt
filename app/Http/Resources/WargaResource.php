@@ -25,7 +25,7 @@ class WargaResource extends JsonResource
             'flag_paru' => $this->flag_paru,
             'flag_jantung' => $this->flag_jantung,
             'flag_autoimun' => $this->flag_autoimun,
-            'flag_diabet' => $this->diabet,
+            'flag_diabet' => $this->flag_diabet,
             'flag_ginjal' => $this->flag_ginjal,
             'flag_liver' => $this->flag_liver,
             'flag_hipertensi' => $this->flag_hipertensi,
