@@ -15,9 +15,10 @@ class WargaResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'warga_id' => $this->id,
             'no_kk' => $this->no_kk,
-            'user_id' => $this->user_id,
-            'jenis_kelamin' => ($this->jenis_kelamin == 'L' ? 'Laki - laki' : 'Perempuan'),
+            // 'user_id' => $this->user_id,
+            'jenis_kelamin' => $this->jenis_kelamin,
             'tanggal_lahir' => $this->tanggal_lahir,
             'alamat' => $this->alamat,
             'no_hp' => $this->no_hp,
@@ -29,7 +30,8 @@ class WargaResource extends JsonResource
             'flag_ginjal' => $this->flag_ginjal,
             'flag_liver' => $this->flag_liver,
             'flag_hipertensi' => $this->flag_hipertensi,
-            'flag_perokok' => $this->flag_perokok
+            'flag_perokok' => $this->flag_perokok,
+            'kesejahteraan' => new KesejahteraanResource($this->whenLoaded('kesejahteraan')),
         ];
     }
 }

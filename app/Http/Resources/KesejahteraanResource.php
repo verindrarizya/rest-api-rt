@@ -17,7 +17,7 @@ class KesejahteraanResource extends JsonResource
         return [
             'penghasilan' => $this->penghasilan,
             'flag_phk' => $this->flag_phk,
-            'flag_usaha' => $this->flag_usaha
+            'flag_usaha' => $this->flag_usaha,
         ];
     }
 }

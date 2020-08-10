@@ -67,9 +67,9 @@ class WargaController extends Controller
             ]
             ,
             [
-            'penghasilan' => $request->input('penghasilan'),
-            'flag_phk' => $request->input('flag_phk'),
-            'flag_usaha' => $request->input('flag_usaha')
+                'penghasilan' => $request->input('penghasilan'),
+                'flag_phk' => $request->input('flag_phk'),
+                'flag_usaha' => $request->input('flag_usaha')
             ]
         );
 
@@ -82,4 +82,6 @@ class WargaController extends Controller
             'data' => new KesejahteraanResource($kesejahteraan)
         ]);
     }
+
+    
 }

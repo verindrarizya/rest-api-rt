@@ -25,10 +25,13 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('logout', 'AuthController@logout');
     $router->post('change-password', 'AuthController@changePassword');
 
+    $router->get('get-count-pekerjaan', 'RtController@getPekerjaanCount');
+
     // RT
     $router->group(['prefix' => 'rt'], function () use ($router) {
         $router->get('show-profile', 'RtController@show');
         $router->put('update-profile', 'RtController@updateProfile');
+        $router->get('laporan-kesejahteraan', 'RtController@lapKesejahteraan');
     });
 
     // Warga
