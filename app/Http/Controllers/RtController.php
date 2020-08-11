@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
 
 use App\User;
 use App\Warga;
@@ -41,47 +42,32 @@ class RtController extends Controller
 
         $user = Auth::user();
 
+        // get warga yang sama dengan RT yang sedang login
+        $warga = User::where([
+            ['kecamatan', $user->kecamatan],
+            ['kelurahan', $user->kelurahan],
+            ['rw', $user->rw],
+            ['rt', $user->rt],
+            ['status_user', 2]
+        ]);
+
         $penghasilanData = array(
 
-            '1' => User::where([
-                ['kecamatan', $user->kecamatan],
-                ['kelurahan', $user->kelurahan],
-                ['rw', $user->rw],
-                ['rt', $user->rt],
-                ['status_user', 2]
-            ])->whereHas('warga.kesejahteraan', function (Builder $query) {
-                $query->penghasilan(1);
-            })->count(),
+            '1' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+                        $query->penghasilan(1);
+                    })->count(),
 
-            '2' => User::where([
-                ['kecamatan', $user->kecamatan],
-                ['kelurahan', $user->kelurahan],
-                ['rw', $user->rw],
-                ['rt', $user->rt],
-                ['status_user', 2]
-            ])->whereHas('warga.kesejahteraan', function (Builder $query) {
-                $query->penghasilan(2);
-            })->count(),
+            '2' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+                        $query->penghasilan(2);
+                    })->count(),
 
-            '3' => User::where([
-                ['kecamatan', $user->kecamatan],
-                ['kelurahan', $user->kelurahan],
-                ['rw', $user->rw],
-                ['rt', $user->rt],
-                ['status_user', 2]
-            ])->whereHas('warga.kesejahteraan', function (Builder $query) {
-                $query->penghasilan(3);
-            })->count(),
+            '3' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+                        $query->penghasilan(3);
+                    })->count(),
 
-            '4' => User::where([
-                ['kecamatan', $user->kecamatan],
-                ['kelurahan', $user->kelurahan],
-                ['rw', $user->rw],
-                ['rt', $user->rt],
-                ['status_user', 2]
-            ])->whereHas('warga.kesejahteraan', function (Builder $query) {
-                $query->penghasilan(4);
-            })->count(),
+            '4' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+                        $query->penghasilan(4);
+                    })->count(),
 
         );
 
@@ -123,9 +109,7 @@ class RtController extends Controller
             })->count(),
         );
 
-        // Warga yang layak bansos
-
-        $warga_bansos = User::where([
+        $warga_layak_bansos = User::where([
             ['kecamatan', $user->kecamatan],
             ['kelurahan', $user->kelurahan],
             ['rw', $user->rw],
@@ -148,8 +132,70 @@ class RtController extends Controller
                 'usaha' => $pekerjaanData['usaha'],
                 'bekerja' => $pekerjaanData['bekerja']
             ],
-            'data_warga' => UserResource::collection($warga_bansos)
+            'data_warga' => UserResource::collection($warga_layak_bansos)
         ]);
+    }
+
+    public function lapKesehatan (Request $request) {
+
+        $user = Auth::user();
+
+        $tanggal_awal = '2010-01-01';
+        $tanggal_akhir = Carbon::today('Asia/Jakarta')->toDateString();
+
+        if ($request->input('tanggal_awal')) {
+            $tanggal_awal = $request->input('tanggal_awal');
+        }
+
+        if ($request->input('tanggal_akhir')) {
+            $tanggal_akhir = $request->input('tanggal_akhir');
+        }
+
+        // get warga yang sama dengan RT yang sedang login
+        $warga = User::where([
+            ['kecamatan', $user->kecamatan],
+            ['kelurahan', $user->kelurahan],
+            ['rw', $user->rw],
+            ['rt', $user->rt],
+            ['status_user', 2]
+        ]);
+
+        $jumWargaSehat = User::where([
+            ['kecamatan', $user->kecamatan],
+            ['kelurahan', $user->kelurahan],
+            ['rw', $user->rw],
+            ['rt', $user->rt],
+            ['status_user', 2]
+        ])->whereHas('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
+            $query->latest()->take(1)->isSehat()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+        })->count();
+
+        $jumWargaSakit = User::where([
+            ['kecamatan', $user->kecamatan],
+            ['kelurahan', $user->kelurahan],
+            ['rw', $user->rw],
+            ['rt', $user->rt],
+            ['status_user', 2]
+        ])->whereHas('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
+            $query->latest()->take(1)->isSakit()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+        })->count();
+
+        $listWargaSakit = User::where([
+            ['kecamatan', $user->kecamatan],
+            ['kelurahan', $user->kelurahan],
+            ['rw', $user->rw],
+            ['rt', $user->rt],
+            ['status_user', 2]
+        ])->whereHas('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
+            $query->latest()->take(1)->isSakit()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+        })->get();
+
+        return response()->json([
+            'jumlah_warga_sehat' => $jumWargaSehat,
+            'jumlah_warga_sakit' => $jumWargaSakit,
+            'data_warga_sakit' => UserResource::collection($listWargaSakit->load('warga'))
+        ]);
+
     }
 
 }

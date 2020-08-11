@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 use App\User;
-use App\Warga;
+use App\Kesehatan;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\WargaResource;
 use App\Http\Resources\KesejahteraanResource;
+use App\Http\Resources\KesehatanResource;
 
 class WargaController extends Controller
 {
@@ -83,5 +85,33 @@ class WargaController extends Controller
         ]);
     }
 
-    
+    public function kondisiKesehatan (Request $request) {
+        $user = Auth::user()->load('warga.kesehatan');
+
+        // Mengecek, karena hanya boleh satu kali per hari
+        $kesehatan = $user->warga->kesehatan()->latest()->first();
+
+        if($kesehatan){
+            if ($kesehatan->tgl_isi == Carbon::today('Asia/Jakarta')->toDateString()){
+                return response()->json([
+                    'message' => 'maaf anda hanya boleh mengisi sekali setiap harinya'
+                ]);
+            }
+        }
+
+        $kesehatan = new Kesehatan;
+
+        $kesehatan->tgl_isi = Carbon::today('Asia/Jakarta')->toDateString();
+        $kesehatan->demam = $request->input('demam', '0');
+        $kesehatan->batuk_kering = $request->input('batuk_kering', '0');
+        $kesehatan->hidung_tersumbat = $request->input('hidung_tersumbat', '0');
+        $kesehatan->pilek = $request->input('pilek', '0');
+        $kesehatan->sakit_tenggorokan = $request->input('sakit_tenggorokan', '0');
+        $kesehatan->diare = $request->input('diare', '0');
+        $kesehatan->sulit_bernafas = $request->input('sulit_bernafas', '0');
+
+        $user->warga->kesehatan()->save($kesehatan);
+
+        return response()->json(new KesehatanResource($kesehatan));
+    }
 }
