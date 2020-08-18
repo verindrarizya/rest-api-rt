@@ -173,6 +173,6 @@ class AuthController extends Controller
     }
 
     public function getToken () {
-        return rand(100, 500);
+        return bin2hex(random_bytes(40));
     }
 }
