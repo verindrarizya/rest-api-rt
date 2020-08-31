@@ -2,21 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-
 use App\User;
 use App\Warga;
+use Carbon\Carbon;
 use App\Kesejahteraan;
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\WargaResource;
+use Illuminate\Database\Eloquent\Builder;
 use App\Http\Resources\KesejahteraanResource;
 
 class RtController extends Controller
 {
+
+    public function __construct () {
+        if (Gate::denies('isRT')) {
+            abort(403);
+        }
+    }
+
     public function show () {
         $user = Auth::user();
 

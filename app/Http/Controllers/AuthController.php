@@ -104,10 +104,8 @@ class AuthController extends Controller
 
                 $user->save();
 
-                return response()->json([
-                    "message"   => 'Login Success',
-                    "token" => $token
-                ], Response::HTTP_OK);
+                // berikan token jika proses login berhasil
+                return $token;
             } else {
                 return response()->json([
                     'message' => 'status user yang anda masukkan salah'

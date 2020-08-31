@@ -38,5 +38,16 @@ class AuthServiceProvider extends ServiceProvider
                 return User::where('token', $token)->first();
             }
         });
+
+
+        // Gates
+
+        Gate::define('isRT', function ($user) {
+            return $user->status_user == 1;
+        });
+
+        Gate::define('isWarga', function ($user) {
+            return $user->status_user == 2;
+        });
     }
 }

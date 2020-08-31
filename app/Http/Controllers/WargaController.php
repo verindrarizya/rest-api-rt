@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\WargaResource;
 use App\Http\Resources\KesehatanResource;
 use App\Http\Resources\KesejahteraanResource;
@@ -16,7 +17,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WargaController extends Controller
 {
+
+    public function __construct () {
+        // Jika bukan warga maka batalkan
+        if (Gate::denies('isWarga')) {
+            abort(403, 'Unauthorized');
+        }
+    }
+
     public function show () {
+
         $user = Auth::user()->load('warga');
 
         return response()->json(new UserResource($user), Response::HTTP_OK);
