@@ -25,7 +25,7 @@ class UserResource extends JsonResource
             'rw' => $this->rw,
             'rt' => $this->rt,
             'status_user' => ($this->status_user == 1 ? 'rt' : 'warga'),
-            'warga' => new WargaResource($this->whenLoaded('warga'))
+            'warga' => new WargaResource($this->whenLoaded('warga')),
         ];
     }
 }

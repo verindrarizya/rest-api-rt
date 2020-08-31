@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-
 use App\User;
 use App\Kesehatan;
+use Carbon\Carbon;
+
+use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\WargaResource;
-use App\Http\Resources\KesejahteraanResource;
 use App\Http\Resources\KesehatanResource;
+use App\Http\Resources\KesejahteraanResource;
+use Symfony\Component\HttpFoundation\Response;
 
 class WargaController extends Controller
 {
     public function show () {
         $user = Auth::user()->load('warga');
 
-        return new UserResource($user);
+        return response()->json(new UserResource($user), Response::HTTP_OK);
     }
 
     public function updateProfile (Request $request) {
@@ -57,7 +58,7 @@ class WargaController extends Controller
         return response()->json([
             'message' => 'data warga berhasil di update',
             'data' => new UserResource($user->load('warga'))
-        ]);
+        ], Response::HTTP_OK);
     }
 
     public function kondisiKesejahteraan (Request $request) {
@@ -95,7 +96,7 @@ class WargaController extends Controller
             if ($kesehatan->tgl_isi == Carbon::today('Asia/Jakarta')->toDateString()){
                 return response()->json([
                     'message' => 'maaf anda hanya boleh mengisi sekali setiap harinya'
-                ]);
+                ], Response::HTTP_UNAUTHORIZED);
             }
         }
 

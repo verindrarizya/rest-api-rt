@@ -32,6 +32,8 @@ class WargaResource extends JsonResource
             'flag_hipertensi' => $this->flag_hipertensi,
             'flag_perokok' => $this->flag_perokok,
             'kesejahteraan' => new KesejahteraanResource($this->whenLoaded('kesejahteraan')),
+            'kesehatan' => KesehatanResource::collection($this->whenLoaded('kesehatan')),
+            'latest_kesehatan' => new KesehatanResource($this->whenLoaded('latestKesehatan')),
         ];
     }
 }

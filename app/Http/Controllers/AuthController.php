@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-
 use App\User;
 use App\Warga;
+use Illuminate\Http\Request;
+
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\WargaResource;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -91,7 +92,7 @@ class AuthController extends Controller
         if (!$user) { // email tidak terdaftar di database
             return response()->json([
                 "message"   => "email not found",
-            ], 401);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
         if (Hash::check($password, $user->password)) { // valid login
@@ -103,24 +104,20 @@ class AuthController extends Controller
 
                 $user->save();
 
-                $response = [
+                return response()->json([
                     "message"   => 'Login Success',
                     "token" => $token
-                ];
+                ], Response::HTTP_OK);
             } else {
-                $response = [
+                return response()->json([
                     'message' => 'status user yang anda masukkan salah'
-                ];
+                ], Response::HTTP_UNAUTHORIZED);
             }
-
         } else {
-            $response = [
+            return response()->json([
                 'message' => 'password yang anda masukkan salah'
-            ];
-            
+            ], Response::HTTP_UNAUTHORIZED);
         }
-
-        return response()->json($response);
     }
 
     public function logout () {
@@ -130,19 +127,17 @@ class AuthController extends Controller
             $user->token = null;
             $user->save();
 
-            $response = [
+            return response()->json([
                 'message'   => 'logout success',
                 'token' => $user->token
-            ];
+            ], Response::HTTP_OK);
         }
         else {
-            $response = [
+            return response()->json([
                 'message'   => "logout failed",
-                'reason'    => "invalid token"    
-            ];
+                'reason'    => "invalid token"
+            ], Response::HTTP_UNAUTHORIZED);
         }
-
-        return response()->json($response);
     }
 
     public function changePassword (Request $request) {
@@ -160,13 +155,14 @@ class AuthController extends Controller
             $user->password = Hash::make($request->input('new_password'));
             $user->save();
 
-            $response = [
-                'Message' => 'Password Berhasil Diganti'
-            ];
+            
+            return response()->json([
+                'Message' => 'Password Berhasil Diganti'   
+            ], Response::HTTP_OK);
         } else {
-            $response = [
+            return response()->json([
                 'Message' => 'Password Gagal Diganti'
-            ];
+            ], Response::HTTP_UNAUTHORIZED);
         }
         
         return response()->json($response);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 use App\User;
@@ -152,13 +153,6 @@ class RtController extends Controller
         }
 
         // get warga yang sama dengan RT yang sedang login
-        $warga = User::where([
-            ['kecamatan', $user->kecamatan],
-            ['kelurahan', $user->kelurahan],
-            ['rw', $user->rw],
-            ['rt', $user->rt],
-            ['status_user', 2]
-        ]);
 
         $jumWargaSehat = User::where([
             ['kecamatan', $user->kecamatan],
@@ -166,8 +160,8 @@ class RtController extends Controller
             ['rw', $user->rw],
             ['rt', $user->rt],
             ['status_user', 2]
-        ])->whereHas('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
-            $query->latest()->take(1)->isSehat()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+        ])->whereHas('warga.latestKesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
+            $query->isSehat()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
         })->count();
 
         $jumWargaSakit = User::where([
@@ -176,8 +170,8 @@ class RtController extends Controller
             ['rw', $user->rw],
             ['rt', $user->rt],
             ['status_user', 2]
-        ])->whereHas('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
-            $query->latest()->take(1)->isSakit()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+        ])->whereHas('warga.latestKesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
+            $query->isSakit()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
         })->count();
 
         $listWargaSakit = User::where([
@@ -187,7 +181,7 @@ class RtController extends Controller
             ['rt', $user->rt],
             ['status_user', 2]
         ])->whereHas('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
-            $query->latest()->take(1)->isSakit()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+            $query->latest('tgl_isi')->take(1)->isSakit()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
         })->get();
 
         return response()->json([
@@ -198,4 +192,34 @@ class RtController extends Controller
 
     }
 
+    public function kesehatan (Request $request) {
+        $user = Auth::user();
+
+        $tanggal_awal = '2010-01-01';
+        $tanggal_akhir = Carbon::today('Asia/Jakarta')->toDateString();
+
+        if ($request->input('tanggal_awal')) {
+            $tanggal_awal = $request->input('tanggal_awal');
+        }
+
+        if ($request->input('tanggal_akhir')) {
+            $tanggal_akhir = $request->input('tanggal_akhir');
+        }
+
+        $warga  = User::join('warga', 'users.id', '=', 'warga.user_id')
+                        ->join('kesehatan', 'kesehatan.warga_id', '=', 'warga.id')
+                        ->where([
+                            ['kecamatan', $user->kecamatan],
+                            ['kelurahan', $user->kelurahan],
+                            ['rw', $user->rw],
+                            ['rt', $user->rt],
+                            ['status_user', 2]
+                        ])
+                        ->select('users.*')
+                        ->get();
+
+        // dd($warga);
+
+        return response()->json($warga);
+    }
 }

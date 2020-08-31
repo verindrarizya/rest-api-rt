@@ -33,4 +33,8 @@ class Warga extends Model
     public function kesehatan () {
         return $this->hasMany('App\Kesehatan');
     }
+
+    public function latestKesehatan () {
+        return $this->hasOne('App\Kesehatan')->latest();
+    }
 }
