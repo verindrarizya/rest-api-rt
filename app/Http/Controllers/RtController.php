@@ -21,7 +21,7 @@ class RtController extends Controller
 
     public function __construct () {
         if (Gate::denies('isRT')) {
-            abort(403);
+            abort(403, 'hello world');
         }
     }
 
@@ -51,30 +51,45 @@ class RtController extends Controller
 
         $user = Auth::user();
 
-        // get warga yang sama dengan RT yang sedang login
-        $warga = User::where([
-            ['kecamatan', $user->kecamatan],
-            ['kelurahan', $user->kelurahan],
-            ['rw', $user->rw],
-            ['rt', $user->rt],
-            ['status_user', 2]
-        ]);
-
         $penghasilanData = array(
 
-            '1' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+            '1' => User::where([
+                        ['kecamatan', $user->kecamatan],
+                        ['kelurahan', $user->kelurahan],
+                        ['rw', $user->rw],
+                        ['rt', $user->rt],
+                        ['status_user', 2]
+                    ])->whereHas('warga.kesejahteraan', function (Builder $query) {
                         $query->penghasilan(1);
                     })->count(),
 
-            '2' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+            '2' => User::where([
+                        ['kecamatan', $user->kecamatan],
+                        ['kelurahan', $user->kelurahan],
+                        ['rw', $user->rw],
+                        ['rt', $user->rt],
+                        ['status_user', 2]
+                    ])->whereHas('warga.kesejahteraan', function (Builder $query) {
                         $query->penghasilan(2);
                     })->count(),
 
-            '3' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+            '3' => User::where([
+                        ['kecamatan', $user->kecamatan],
+                        ['kelurahan', $user->kelurahan],
+                        ['rw', $user->rw],
+                        ['rt', $user->rt],
+                [       'status_user', 2]
+                    ])->whereHas('warga.kesejahteraan', function (Builder $query) {
                         $query->penghasilan(3);
                     })->count(),
 
-            '4' => $warga->whereHas('warga.kesejahteraan', function (Builder $query) {
+            '4' => User::where([
+                        ['kecamatan', $user->kecamatan],
+                        ['kelurahan', $user->kelurahan],
+                        ['rw', $user->rw],
+                        ['rt', $user->rt],
+                        ['status_user', 2]
+                    ])->whereHas('warga.kesejahteraan', function (Builder $query) {
                         $query->penghasilan(4);
                     })->count(),
 
