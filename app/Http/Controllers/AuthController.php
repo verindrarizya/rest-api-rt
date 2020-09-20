@@ -167,6 +167,6 @@ class AuthController extends Controller
     }
 
     public function getToken () {
-        return bin2hex(random_bytes(40));
+        return bin2hex(random_bytes(40)).'.'.bin2hex(random_bytes(40)).'.'.bin2hex(random_bytes(10));
     }
 }

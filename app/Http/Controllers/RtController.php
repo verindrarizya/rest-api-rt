@@ -162,17 +162,6 @@ class RtController extends Controller
     }
 
     public function lapKesehatan (Request $request) {
-        // $warga  = User::join('warga', 'users.id', '=', 'warga.user_id')
-        //                 ->join('kesehatan', 'kesehatan.warga_id', '=', 'warga.id')
-        //                 ->where([
-        //                     ['kecamatan', $user->kecamatan],
-        //                     ['kelurahan', $user->kelurahan],
-        //                     ['rw', $user->rw],
-        //                     ['rt', $user->rt],
-        //                     ['status_user', 2]
-        //                 ])
-        //                 ->select('users.*')
-        //                 ->get();
 
         $user = Auth::user();
 

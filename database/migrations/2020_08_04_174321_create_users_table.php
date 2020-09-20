@@ -25,7 +25,7 @@ class CreateUsersTable extends Migration
             $table->string('rt');
             $table->enum('status_user', [1, 2]);
 
-            $table->string('token')->nullable();
+            $table->string('token')->unique()->nullable();
             $table->rememberToken();
 
             $table->timestamps();
