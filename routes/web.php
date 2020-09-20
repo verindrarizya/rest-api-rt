@@ -30,10 +30,10 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
         $router->get('show-profile', 'RtController@show');
         $router->put('update-profile', 'RtController@updateProfile');
         $router->get('laporan-kesejahteraan', 'RtController@lapKesejahteraan');
-        $router->get('laporan-kesehatan', 'RtController@lapKesehatan');
+        // $router->get('laporan-kesehatan', 'RtController@lapKesehatan');
 
-        // Tester buat nge fix laporan kesehatan
-        $router->get('kesehatan', 'RtController@kesehatan');
+        //Tester buat nge fix laporan kesehatan
+        $router->get('laporan-kesehatan', 'RtController@kesehatan');
     });
 
     // Warga

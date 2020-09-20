@@ -38,4 +38,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function warga () {
         return $this->hasOne('App\Warga');
     }
+
+    // local Scopes
+    public function scopeGetWarga ($query, $kecamatan, $kelurahan, $rw, $rt) {
+        return $query->where([
+                        ['kecamatan', $kecamatan],
+                        ['kelurahan', $kelurahan],
+                        ['rw', $rw],
+                        ['rt', $rt],
+                        ['status_user', 2]
+        ]);
+    }
 }

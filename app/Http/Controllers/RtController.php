@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\WargaResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use App\Http\Resources\KesejahteraanResource;
 
 class RtController extends Controller
@@ -161,6 +162,17 @@ class RtController extends Controller
     }
 
     public function lapKesehatan (Request $request) {
+        // $warga  = User::join('warga', 'users.id', '=', 'warga.user_id')
+        //                 ->join('kesehatan', 'kesehatan.warga_id', '=', 'warga.id')
+        //                 ->where([
+        //                     ['kecamatan', $user->kecamatan],
+        //                     ['kelurahan', $user->kelurahan],
+        //                     ['rw', $user->rw],
+        //                     ['rt', $user->rt],
+        //                     ['status_user', 2]
+        //                 ])
+        //                 ->select('users.*')
+        //                 ->get();
 
         $user = Auth::user();
 
@@ -204,13 +216,26 @@ class RtController extends Controller
             ['rt', $user->rt],
             ['status_user', 2]
         ])->whereHas('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
-            $query->latest('tgl_isi')->take(1)->isSakit()->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+            $query->latest()->take(1)->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
         })->get();
+
+        $WargaSakit = User::where([
+            ['kecamatan', $user->kecamatan],
+            ['kelurahan', $user->kelurahan],
+            ['rw', $user->rw],
+            ['rt', $user->rt],
+            ['status_user', 2]
+        ])->with(['warga' => function ($warga) use ($tanggal_awal, $tanggal_akhir) {
+            return $warga->with(['kesehatan' => function ($kesehatan) use ($tanggal_awal, $tanggal_akhir) {
+                return $kesehatan->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+            }]);
+        }])
+        ->get();
 
         return response()->json([
             'jumlah_warga_sehat' => $jumWargaSehat,
             'jumlah_warga_sakit' => $jumWargaSakit,
-            'data_warga_sakit' => UserResource::collection($listWargaSakit->load('warga'))
+            'data_warga_sakit' => UserResource::collection($listWargaSakit)
         ]);
 
     }
@@ -229,20 +254,83 @@ class RtController extends Controller
             $tanggal_akhir = $request->input('tanggal_akhir');
         }
 
-        $warga  = User::join('warga', 'users.id', '=', 'warga.user_id')
-                        ->join('kesehatan', 'kesehatan.warga_id', '=', 'warga.id')
-                        ->where([
-                            ['kecamatan', $user->kecamatan],
-                            ['kelurahan', $user->kelurahan],
-                            ['rw', $user->rw],
-                            ['rt', $user->rt],
-                            ['status_user', 2]
-                        ])
-                        ->select('users.*')
-                        ->get();
+        $wargas = User::getWarga($user->kecamatan, $user->kelurahan, $user->rw, $user->rt)
+                    ->with(['warga' => function ($warga) use ($tanggal_awal, $tanggal_akhir) {
+                        return $warga->with(['latestKesehatan' => function ($kesehatan) use ($tanggal_awal, $tanggal_akhir) {
+                            return $kesehatan->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+                        }]);
+                    }])
+                    ->get();
 
-        // dd($warga);
+        $tidak_punya_data_sakit = User::getWarga($user->kecamatan, $user->kelurahan, $user->rw, $user->rt)
+                    ->whereDoesntHave('warga.kesehatan', function (Builder $query) use ($tanggal_awal, $tanggal_akhir) {
+                        $query->whereBetween('tgl_isi', [$tanggal_awal, $tanggal_akhir]);
+                    })
+                    ->count();
 
-        return response()->json($warga);
+        $warga_sakit = $this->sakit($wargas);
+        $warga_sehat = $this->sehat($wargas) + $tidak_punya_data_sakit;
+        $id_warga_sakit = $this->dataWargaSakit($wargas);
+
+        $data_warga_sakit = User::whereIn('id', $id_warga_sakit)->with('warga')->get();
+
+        return response()->json([
+            'jumlah_warga_sakit' => $warga_sakit,
+            'jumlah_warga_sehat' => $warga_sehat,
+            // 'array' => $this->dataWargaSakit($wargas),
+            'data_warga_sakit' => UserResource::collection($data_warga_sakit),
+            // 'warga' => UserResource::collection($wargas),
+        ]);
+    }
+
+    public function sakit (Collection $data) {
+        $warga_sakit = 0;
+
+        foreach ($data as $warga) {
+
+            if($warga->warga->latestKesehatan == null) {
+                continue;
+            }
+
+            if ($warga->warga->latestKesehatan->demam == 1 || $warga->warga->latestKesehatan->batuk_kering == 1 || $warga->warga->latestKesehatan->hidung_tersumbat == 1 || $warga->warga->latestKesehatan->pilek == 1 || $warga->warga->latestKesehatan->sakit_tenggorokan == 1 || $warga->warga->latestKesehatan->diare == 1 ||$warga->warga->latestKesehatan->sulit_bernafas == 1 ) {
+                $warga_sakit++;
+            }
+        }
+
+        return $warga_sakit;
+    }
+
+    public function sehat (Collection $data) {
+        $warga_sehat = 0;
+
+        foreach ($data as $warga) {
+
+            if($warga->warga->latestKesehatan == null) {
+                continue;
+            }
+
+            if ($warga->warga->latestKesehatan->demam == 0 && $warga->warga->latestKesehatan->batuk_kering == 0 && $warga->warga->latestKesehatan->hidung_tersumbat == 0 && $warga->warga->latestKesehatan->pilek == 0 && $warga->warga->latestKesehatan->sakit_tenggorokan == 0 && $warga->warga->latestKesehatan->diare == 0 && $warga->warga->latestKesehatan->sulit_bernafas == 0 ) {
+                $warga_sehat++;
+            }
+        }
+
+        return $warga_sehat;
+    }
+
+    public function dataWargaSakit (Collection $data = null) {
+        $data_warga = array();
+
+        foreach ($data as $warga) {
+
+            if($warga->warga->latestKesehatan == null) {
+                continue;
+            }
+
+            if ($warga->warga->latestKesehatan->demam == 1 || $warga->warga->latestKesehatan->batuk_kering == 1 || $warga->warga->latestKesehatan->hidung_tersumbat == 1 || $warga->warga->latestKesehatan->pilek == 1 || $warga->warga->latestKesehatan->sakit_tenggorokan == 1 || $warga->warga->latestKesehatan->diare == 1 ||$warga->warga->latestKesehatan->sulit_bernafas == 1 ) {
+                array_push($data_warga, $warga->id);
+            }
+        }
+
+        return $data_warga;
     }
 }

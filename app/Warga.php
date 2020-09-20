@@ -37,4 +37,6 @@ class Warga extends Model
     public function latestKesehatan () {
         return $this->hasOne('App\Kesehatan')->latest();
     }
+
+    
 }
