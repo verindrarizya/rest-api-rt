@@ -40,6 +40,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->group(['prefix' => 'warga'], function () use ($router) {
         $router->get('show-profile', 'WargaController@show');
         $router->put('update-profile', 'WargaController@updateProfile');
+        $router->get('get-kesejahteraan', 'WargaController@getKesejahteraan');
         $router->post('kesejahteraan', 'WargaController@kondisiKesejahteraan');
         $router->post('kesehatan', 'WargaController@kondisiKesehatan');
     });

@@ -74,6 +74,8 @@ class AuthController extends Controller
 
         $user->warga()->save($warga);
 
+        
+
         $response  = [
             'message' => 'registrasi warga berhasil',
             'data' => new UserResource($user->load('warga'))

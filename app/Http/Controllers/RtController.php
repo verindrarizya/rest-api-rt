@@ -22,7 +22,7 @@ class RtController extends Controller
 
     public function __construct () {
         if (Gate::denies('isRT')) {
-            abort(403, 'hello world');
+            abort(401, 'hello world');
         }
     }
 
@@ -157,7 +157,7 @@ class RtController extends Controller
                 'usaha' => $pekerjaanData['usaha'],
                 'bekerja' => $pekerjaanData['bekerja']
             ],
-            'data_warga' => UserResource::collection($warga_layak_bansos)
+            'data_warga' => UserResource::collection($warga_layak_bansos->load('warga'))
         ]);
     }
 

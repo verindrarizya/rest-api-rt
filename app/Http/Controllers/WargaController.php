@@ -71,6 +71,20 @@ class WargaController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function getKesejahteraan () {
+        $dataKesejahteraanWarga = Auth::user()->warga->kesejahteraan;
+
+        if ($dataKesejahteraanWarga == null) {
+            return response()->json([
+                'penghasilan' => null,
+                'flag_phk' => null,
+                'flag_usaha' => null
+            ]);
+        }
+
+        return response()->json(new KesejahteraanResource($dataKesejahteraanWarga));
+    }
+
     public function kondisiKesejahteraan (Request $request) {
         $user = Auth::user()->load('warga.kesejahteraan');
 
