@@ -1,1 +1,1 @@
-# COVID RT API
+# REST API RT
